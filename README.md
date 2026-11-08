@@ -4,15 +4,11 @@ A NestJS and Prisma-based Library Management System API.
 
 ## Schema Decisions
 
-I decided that the `Book` model should reference the `Genre` model using a foreign key (`genreId`) instead of embedding the genre name directly inside the Book.
-
-### Why?
-- Prevents data duplication
-- Makes it easy to update a genre name in one place
-- Follows relational database best practices (normalization)
-- Better data integrity
-
-In document databases (like MongoDB), embedding is more common. But since we are using PostgreSQL, referencing is the correct approach.
+Book references Genre via a genreId foreign key rather than embedding the
+genre name directly, because many books share one genre and genres are
+managed independently (renaming a genre should not require updating every
+book). User stores a `role` field using a Role enum so Postgres and
+TypeScript both reject any value other than PATRON or LIBRARIAN.
 
 ## Setup and Installation
 

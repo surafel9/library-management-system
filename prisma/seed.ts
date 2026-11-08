@@ -1,71 +1,62 @@
-import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('seeding started');
-  const fantasy = await prisma.genre.upsert({
-    where: { name: 'Fantasy' },
-    update: {},
-    create: { name: 'Fantasy' },
-  });
-  const scifi = await prisma.genre.upsert({
-    where: { name: 'Science Fiction' },
-    update: {},
-    create: { name: 'Science Fiction' },
-  });
-  const mystery = await prisma.genre.upsert({
-    where: { name: 'Mystery' },
-    update: {},
-    create: { name: 'Mystery' },
-  });
-  const romance = await prisma.genre.upsert({
-    where: { name: 'Romance' },
-    update: {},
-    create: { name: 'Romance' },
-  });
+  const genreNames = ['Fantasy', 'Science Fiction', 'Mystery', 'Biography'];
+  const genres = await Promise.all(
+    genreNames.map((name) =>
+      prisma.genre.upsert({
+        where: { name },
+        update: {},
+        create: { name, slug: name.toLowerCase().replace(/\s+/g, '-') },
+      }),
+    ),
+  );
 
-  const books = [
-    { title: 'ፍቅር እስከ መቃብር', genreId: romance.id },
-    { title: 'Harry Potter', genreId: fantasy.id },
-    { title: 'Name of the Wind', genreId: fantasy.id },
-    { title: 'The Way of Kings', genreId: fantasy.id },
-    { title: 'Dune', genreId: scifi.id },
-    { title: 'Foundation', genreId: scifi.id },
-    { title: 'Neuromancer', genreId: scifi.id },
-    { title: 'The Martian', genreId: scifi.id },
-    { title: 'Gone Girl', genreId: mystery.id },
-    { title: 'Sherlock Holmes', genreId: mystery.id },
-    { title: 'The Girl with the Dragon Tattoo', genreId: mystery.id },
-    { title: 'Big Little Lies', genreId: mystery.id },
-    { title: 'Pride and Prejudice', genreId: romance.id },
-    { title: 'The Notebook', genreId: romance.id },
-    { title: 'It Ends with Us', genreId: romance.id },
-    { title: 'Me Before You', genreId: romance.id },
+  const sampleBooks = [
+    { title: 'The Hobbit', author: 'J.R.R. Tolkien', genre: 'Fantasy' },
+    { title: 'Harry Potter', author: 'J.K. Rowling', genre: 'Fantasy' },
+    { title: 'Name of the Wind', author: 'Patrick Rothfuss', genre: 'Fantasy' },
+    { title: 'The Way of Kings', author: 'Brandon Sanderson', genre: 'Fantasy' },
+    { title: 'Dune', author: 'Frank Herbert', genre: 'Science Fiction' },
+    { title: 'Foundation', author: 'Isaac Asimov', genre: 'Science Fiction' },
+    { title: 'Neuromancer', author: 'William Gibson', genre: 'Science Fiction' },
+    { title: 'The Martian', author: 'Andy Weir', genre: 'Science Fiction' },
+    { title: 'The Big Sleep', author: 'Raymond Chandler', genre: 'Mystery' },
+    { title: 'Gone Girl', author: 'Gillian Flynn', genre: 'Mystery' },
+    { title: 'Sherlock Holmes', author: 'Arthur Conan Doyle', genre: 'Mystery' },
+    { title: 'The Girl with the Dragon Tattoo', author: 'Stieg Larsson', genre: 'Mystery' },
+    { title: 'Educated', author: 'Tara Westover', genre: 'Biography' },
+    { title: 'Steve Jobs', author: 'Walter Isaacson', genre: 'Biography' },
+    { title: 'Becoming', author: 'Michelle Obama', genre: 'Biography' },
+    { title: 'Long Walk to Freedom', author: 'Nelson Mandela', genre: 'Biography' },
   ];
 
-  for (const book of books) {
+  for (const book of sampleBooks) {
+    const genre = genres.find((g) => g.name === book.genre);
+    if (!genre) continue;
+
     const existingBook = await prisma.book.findFirst({
-      where: { title: book.title, genreId: book.genreId },
+      where: { title: book.title, author: book.author },
     });
+
     if (!existingBook) {
-      await prisma.book.create({ data: book });
+      await prisma.book.create({
+        data: {
+          title: book.title,
+          author: book.author,
+          isbn: `978${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+          description: `${book.title} by ${book.author}.`,
+          totalCopies: 3,
+          availableCopies: 3,
+          genreId: genre.id,
+        },
+      });
     }
   }
-  console.log('seeding Finished');
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-    await pool.end();
-  });
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
