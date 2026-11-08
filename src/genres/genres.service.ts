@@ -8,7 +8,9 @@ export class GenresService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createGenreDto: CreateGenreDto) {
-    const slug = createGenreDto.slug || createGenreDto.name.toLowerCase().replace(/\s+/g, '-');
+    const slug =
+      createGenreDto.slug ||
+      createGenreDto.name.toLowerCase().replace(/\s+/g, '-');
     return this.prisma.genre.create({
       data: {
         ...createGenreDto,

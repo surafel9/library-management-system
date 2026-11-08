@@ -14,7 +14,9 @@ export class BooksService {
       where: { id: createBookDto.genreId },
     });
     if (!genre) {
-      throw new NotFoundException(`Genre with ID ${createBookDto.genreId} not found`);
+      throw new NotFoundException(
+        `Genre with ID ${createBookDto.genreId} not found`,
+      );
     }
 
     return this.prisma.book.create({

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { GenresService } from './genres.service.js';
 import { CreateGenreDto } from './dto/create-genre.dto.js';
 import { UpdateGenreDto } from './dto/update-genre.dto.js';
@@ -23,7 +32,10 @@ export class GenresController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateGenreDto: UpdateGenreDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateGenreDto: UpdateGenreDto,
+  ) {
     return this.genresService.update(id, updateGenreDto);
   }
 

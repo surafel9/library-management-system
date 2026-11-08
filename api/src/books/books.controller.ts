@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { BooksService } from './books.service.js';
 import { CreateBookDto } from './dto/create-book.dto.js';
@@ -32,7 +43,10 @@ export class BooksController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.LIBRARIAN)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateBookDto: UpdateBookDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateBookDto: UpdateBookDto,
+  ) {
     return this.booksService.update(id, updateBookDto);
   }
 
