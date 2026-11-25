@@ -406,6 +406,7 @@ select {
   color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -442,6 +443,7 @@ select {
   color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -822,6 +824,7 @@ select {
   .book-cover-plate-title {
     font-size: 13px;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .book-cover-plate-genre {
